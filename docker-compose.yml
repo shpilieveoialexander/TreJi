@@ -1,0 +1,81 @@
+# Compose file for developing
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: tre_ji_db
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=$PSQL_DB_NAME
+      - POSTGRES_USER=$PSQL_USER
+      - POSTGRES_PASSWORD=$PSQL_PASSWORD
+    networks:
+      - tre_ji_net
+
+
+  backend:
+    build: ./backend/
+    container_name: tre_ji_backend
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./backend/:/backend/
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - tre_ji_net
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+
+
+  redis:
+    image: redis:latest
+    container_name: tre_ji_redis
+    command: redis-server
+    env_file:
+      - .env
+    networks:
+      - tre_ji_net
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+
+
+  adminer:
+    image: adminer:latest
+    container_name: tre_ji_adminer
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - tre_ji_net
+    ports:
+      - ${ADMINER_PORT}:${ADMINER_PORT}
+
+
+  worker:
+    build: ./worker/
+    container_name: tre_ji_worker
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./worker/:/backend/
+    networks:
+      - tre_ji_net
+    depends_on:
+      - redis
+      - backend
+    env_file:
+      - .env
+
+
+
+networks:
+  tre_ji_net:
+
+volumes:
+  db:
