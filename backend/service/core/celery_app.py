@@ -11,3 +11,4 @@ celery_app = Celery(
 celery_app.conf.task_routes = {
     "service.tasks.delay.test_celery": "main-queue",
 }
+celery_app.conf.task_routes = {"service.tasks.delay.send_invite": "mail-queue"}

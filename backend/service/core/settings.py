@@ -2,7 +2,7 @@ import os
 from typing import Any, Final, List, Optional
 
 import ujson
-from pydantic import AnyHttpUrl, ConfigDict, EmailStr, field_validator
+from pydantic import AnyHttpUrl, ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -33,13 +33,6 @@ class Settings(BaseSettings):
             return ujson.loads(value)
         elif isinstance(value, (list, str)):
             return value
-
-    #############
-    # SUPERUSER #
-    #############
-    SUPERUSER_EMAIL: EmailStr = os.getenv("SUPERUSER_EMAIL")
-    SUPERUSER_PASSWORD: str = os.getenv("SUPERUSER_PASSWORD", "admin")
-    SUPERUSER_NAME: str = os.getenv("SUPERUSER_NAME", "Admin")
 
     #######
     # JWT #
@@ -101,6 +94,14 @@ class Settings(BaseSettings):
     # ADMINER #
     ###########
     ADMINER_PORT: int = os.getenv("ADMINER_PORT")
+
+    #########
+    # EMAIL #
+    #########
+    SMTP_PORT: int = os.getenv("SMTP_PORT")
+    SMTP_HOST: str = os.getenv("SMTP_HOST")
+    SMTP_USER: str = os.getenv("SMTP_USER")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD")
 
     class Config:
         case_sensitive = True
