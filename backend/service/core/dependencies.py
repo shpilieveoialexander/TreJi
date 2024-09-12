@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from jose import jwt
+from sqlalchemy import select
 
 from db import constants, models
 from db.session import DBSession
@@ -65,9 +66,26 @@ async def get_current_user(
     token_payload: schemas_v1.JWTTokenPayload = Depends(get_access_token),
 ) -> models.User:
     """Return current user instance"""
-    user_query = models.User.get_one(id=token_payload.pk, is_active=True)
     with session() as db:
-        user = db.scalars(user_query).one_or_none()
+        user = db.get(models.User, token_payload.pk)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+    return user
+
+
+async def get_current_manager(
+    session: DBSession = Depends(get_session),
+    token_payload: schemas_v1.JWTTokenPayload = Depends(get_access_token),
+) -> models.User:
+    """Return current user instance"""
+    user_query = select(models.User).filter_by(
+        id=token_payload.pk, status=constants.UserStatus.MANAGER
+    )
+    with session() as db:
+        user = db.execute(select(user_query.exists())).scalar()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

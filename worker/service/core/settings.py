@@ -51,6 +51,14 @@ class Settings(BaseSettings):
     REDIS_CACHE_URL: Final[str] = f"redis://redis"
     REDIS_CACHE_LIFETIME: int = 10  # Set in minutes
 
+    #########
+    # EMAIL #
+    #########
+    SMTP_PORT: int = os.getenv("SMTP_PORT")
+    SMTP_HOST: str = os.getenv("SMTP_HOST")
+    SMTP_USER: str = os.getenv("SMTP_USER")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD")
+
     class Config:
         case_sensitive = True
 
