@@ -22,3 +22,33 @@ def send_invite(email: str, tmp_token: str):
     env = Environment(loader=FileSystemLoader(template_path.parent))
     template = env.get_template(Path("service/templates/email_template.html").name)
     return send_email(email, "Account Verification", template.render(url=url_link))
+
+
+@celery_app.task(acks_late=True)
+def task_creation_confirm(email: str, name: str):
+    template_path = Path("service/templates/create_task_template.html")
+    env = Environment(loader=FileSystemLoader(template_path.parent))
+    template = env.get_template(
+        Path("service/templates/create_task_template.html").name
+    )
+    return send_email(email, "Task created", template.render(name=name))
+
+
+@celery_app.task(acks_late=True)
+def task_assign_confirm(email: str, name: str):
+    template_path = Path("service/templates/task_assigned_template.html")
+    env = Environment(loader=FileSystemLoader(template_path.parent))
+    template = env.get_template(
+        Path("service/templates/task_assigned_template.html").name
+    )
+    return send_email(email, "Task created", template.render(name=name))
+
+
+@celery_app.task(acks_late=True)
+def task_unassign_confirm(email: str, name: str):
+    template_path = Path("service/templates/create_task_template.html")
+    env = Environment(loader=FileSystemLoader(template_path.parent))
+    template = env.get_template(
+        Path("service/templates/task_unassigned_template.html").name
+    )
+    return send_email(email, "Task created", template.render(name=name))
