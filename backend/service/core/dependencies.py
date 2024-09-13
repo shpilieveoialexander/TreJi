@@ -66,8 +66,9 @@ async def get_current_user(
     token_payload: schemas_v1.JWTTokenPayload = Depends(get_access_token),
 ) -> models.User:
     """Return current user instance"""
+    user_query = select(models.User).filter_by(id=token_payload.pk)
     with session() as db:
-        user = db.get(models.User, token_payload.pk)
+        user = db.execute(user_query).scalar_one_or_none()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -85,7 +86,7 @@ async def get_current_manager(
         id=token_payload.pk, status=constants.UserStatus.MANAGER
     )
     with session() as db:
-        user = db.execute(select(user_query.exists())).scalar()
+        user = db.execute(user_query).scalar_one_or_none()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
